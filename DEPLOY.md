@@ -9,7 +9,7 @@ Takes about 10 minutes. You need a GitHub account and Git installed
 ## 1. Unzip and open a terminal in the folder
 
 ```bash
-cd path/to/huset-3d
+cd path/to/lines-hus
 git log --oneline          # should show the existing commits
 ```
 
@@ -24,19 +24,19 @@ git commit --amend --reset-author --no-edit
 ## 2. Create an empty repository on GitHub
 
 1. Go to <https://github.com/new>
-2. **Repository name:** `huset-3d` (any name works – it becomes part of the URL)
+2. **Repository name:** `lines-hus` (any name works – it becomes part of the URL)
 3. **Visibility:**
    - *Public* → GitHub Pages works on every plan, and **anyone with the link can see the house.**
    - *Private* → the code is hidden, but GitHub Pages on a private repo needs a paid plan
      (GitHub Pro/Team), and the published site is still public unless you are on Enterprise.
 4. **Do not** tick "Add a README", ".gitignore" or "license" (the repo must be empty).
 5. Click **Create repository** and copy the URL it shows, e.g.
-   `https://github.com/YOUR-USERNAME/huset-3d.git`
+   `https://github.com/YOUR-USERNAME/lines-hus.git`
 
 ## 3. Push the code
 
 ```bash
-git remote add origin https://github.com/YOUR-USERNAME/huset-3d.git
+git remote add origin https://github.com/YOUR-USERNAME/lines-hus.git
 git branch -M main
 git push -u origin main
 ```
@@ -57,10 +57,10 @@ That's it – the workflow in `.github/workflows/pages.yml` does the rest.
    changed the setting in step 4 and failed, click it → **Re-run all jobs**).
 2. After 1–2 minutes it turns green. The site is live at:
 
-   **`https://YOUR-USERNAME.github.io/huset-3d/`**
+   **`https://YOUR-USERNAME.github.io/lines-hus/`**
 
    Direct links to each house also work:
-   `…/huset-3d/#v1`, `…/#v2-1`, `…/#v2-2`, `…/#v3`
+   `…/lines-hus/#v1`, `…/#v2-1`, `…/#v2-2`, `…/#v3`
 
 ---
 
@@ -84,7 +84,7 @@ see the result until the site updates.
    node --version     # should print v18 or newer
    npm --version
    ```
-4. In the `huset-3d` folder, download the dependencies (Three.js + the build tool):
+4. In the `lines-hus` folder, download the dependencies (Three.js + the build tool):
    ```bash
    npm install
    ```
@@ -110,6 +110,6 @@ Every push to `main` rebuilds and republishes automatically (watch the **Actions
 | Action fails at *Deploy* with "Pages not enabled" | Do step 4, then re-run the job. |
 | `npm` / `node` "command not found" | Install Node.js (see above) and open a **new** terminal window. |
 | `npm ci` fails in the Action | Make sure `package-lock.json` was committed (`git ls-files package-lock.json`). |
-| Site shows 404 | Wait a minute and hard-refresh; check the URL ends with `/huset-3d/` (the repo name). |
+| Site shows 404 | Wait a minute and hard-refresh; check the URL ends with `/lines-hus/` (the repo name). |
 | `git push` rejected | The GitHub repo wasn't empty. Run `git pull --rebase origin main`, then push again. |
 | Want a custom domain | Settings → Pages → Custom domain (and add a DNS CNAME record at your domain provider). |
