@@ -618,3 +618,64 @@ export function carportPost() {
   box(S.G0, 0.0, 0.14, 0.0, 0.14, 0, FH - 0.25, M.frame, { obstacle: 0 });
 }
 export const room = (lv, no, en, r, p) => S.rooms[lv].push({ no, en, r, p });
+
+// ---------------------------------------------------------------------------
+// Greeter: a smiling blonde woman standing by the front path (added to every version)
+// ---------------------------------------------------------------------------
+const PM = {
+  skin: new THREE.MeshStandardMaterial({ color: 0xf2c7a8, roughness: 0.7 }),
+  hair: new THREE.MeshStandardMaterial({ color: 0xe8cc7e, roughness: 0.6, side: THREE.DoubleSide }),
+  top: new THREE.MeshStandardMaterial({ color: 0xc8574f, roughness: 0.9 }),
+  jeans: new THREE.MeshStandardMaterial({ color: 0x3d5577, roughness: 0.9 }),
+  shoe: new THREE.MeshStandardMaterial({ color: 0xf4f2ee, roughness: 0.6 }),
+  eye: new THREE.MeshStandardMaterial({ color: 0x1e2a36, roughness: 0.3 }),
+  lips: new THREE.MeshStandardMaterial({ color: 0xb8505a, roughness: 0.5 }),
+  cheek: new THREE.MeshStandardMaterial({ color: 0xf0a3a0, roughness: 0.8, transparent: true, opacity: 0.55 }),
+};
+export function greeter(parent, x, y, faceX, faceY) {
+  const g = new THREE.Group();
+  const part = (geo, mat, px, py, pz) => { const m = mesh(geo, mat, g); m.position.set(px, py, pz); return m; };
+  const limb = (r0, r1, len, mat) => new THREE.CylinderGeometry(r0, r1, len, 14);
+  // feet & legs
+  for (const s of [-1, 1]) {
+    part(new THREE.BoxGeometry(0.09, 0.06, 0.22), PM.shoe, s * 0.085, 0.03, 0.03);
+    part(limb(0.06, 0.05, 0.76, PM.jeans), PM.jeans, s * 0.085, 0.44, 0);
+  }
+  part(new THREE.CylinderGeometry(0.16, 0.15, 0.14, 18), PM.jeans, 0, 0.84, 0);
+  // torso, shoulders, neck
+  part(new THREE.CylinderGeometry(0.175, 0.15, 0.52, 18), PM.top, 0, 1.15, 0);
+  const sh = part(new THREE.SphereGeometry(0.175, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2), PM.top, 0, 1.4, 0);
+  sh.scale.y = 0.35;
+  part(limb(0.045, 0.05, 0.1, PM.skin), PM.skin, 0, 1.47, 0);
+  // arms (slightly away from the body) & hands
+  for (const s of [-1, 1]) {
+    const a = part(limb(0.05, 0.042, 0.6, PM.top), PM.top, s * 0.215, 1.12, 0);
+    a.rotation.z = s * 0.1;
+    part(new THREE.SphereGeometry(0.045, 12, 10), PM.skin, s * 0.245, 0.8, 0);
+  }
+  // head & face (front = +z)
+  const HY = 1.6, HR = 0.115;
+  part(new THREE.SphereGeometry(HR, 28, 20), PM.skin, 0, HY, 0);
+  for (const s of [-1, 1]) {
+    part(new THREE.SphereGeometry(0.014, 10, 8), PM.eye, s * 0.04, HY + 0.018, 0.104);
+    const c = part(new THREE.SphereGeometry(0.022, 10, 8), PM.cheek, s * 0.06, HY - 0.025, 0.093);
+    c.scale.z = 0.4; c.castShadow = false;
+  }
+  const smile = part(new THREE.TorusGeometry(0.036, 0.007, 8, 20, Math.PI), PM.lips, 0, HY - 0.035, 0.104);
+  smile.rotation.z = Math.PI; // arc opens upward → a smile
+  // blonde hair: crown cap, back half, long hair down the back, side locks
+  part(new THREE.SphereGeometry(HR * 1.08, 28, 16, 0, Math.PI * 2, 0, 1.15), PM.hair, 0, HY + 0.008, -0.004);
+  part(new THREE.SphereGeometry(HR * 1.1, 28, 16, Math.PI, Math.PI, 0, 2.3), PM.hair, 0, HY, -0.006);
+  const back = part(new THREE.CylinderGeometry(0.11, 0.135, 0.36, 18, 1, true, Math.PI / 2, Math.PI), PM.hair, 0, HY - 0.2, -0.025);
+  back.scale.z = 0.75;
+  for (const s of [-1, 1]) {
+    const lock = part(new THREE.CapsuleGeometry(0.03, 0.2, 6, 10), PM.hair, s * 0.11, HY - 0.1, 0.01);
+    lock.rotation.z = s * 0.08;
+  }
+  g.position.set(x, zOf(parent), -y);
+  g.rotation.y = Math.atan2(faceX - x, -(faceY - y)); // turn her front (+z) toward the given plan point
+  parent.add(g);
+  S.obstacles.push({ x0: x - 0.25, x1: x + 0.25, y0: y - 0.25, y1: y + 0.25, lv: lvOf(parent) });
+  S.mapItems[lvOf(parent)].push({ t: 'circle', cx: x, cy: y, r: 0.22 });
+  return g;
+}
