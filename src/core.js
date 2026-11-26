@@ -679,3 +679,61 @@ export function greeter(parent, x, y, faceX, faceY) {
   S.mapItems[lvOf(parent)].push({ t: 'circle', cx: x, cy: y, r: 0.22 });
   return g;
 }
+
+// ---------------------------------------------------------------------------
+// Cat: a sitting three-coloured cat (amber, brown, black) beside the greeter
+// ---------------------------------------------------------------------------
+const CM = {
+  amber: new THREE.MeshStandardMaterial({ color: 0xd98a2b, roughness: 0.85 }),
+  brown: new THREE.MeshStandardMaterial({ color: 0x6b4226, roughness: 0.85 }),
+  black: new THREE.MeshStandardMaterial({ color: 0x1b1a19, roughness: 0.8 }),
+  eye: new THREE.MeshStandardMaterial({ color: 0x9bc24a, roughness: 0.2, emissive: 0x1d2a08 }),
+  pupil: new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.2 }),
+  nose: new THREE.MeshStandardMaterial({ color: 0xd88a8a, roughness: 0.5 }),
+  ear: new THREE.MeshStandardMaterial({ color: 0xe7a49a, roughness: 0.7 }),
+};
+export function cat(parent, x, y, faceX, faceY) {
+  const g = new THREE.Group();
+  const part = (geo, mat, px, py, pz) => { const m = mesh(geo, mat, g); m.position.set(px, py, pz); return m; };
+  const blob = (r, mat, px, py, pz, sx, sy, sz) => { const m = part(new THREE.SphereGeometry(r, 18, 12), mat, px, py, pz); m.scale.set(sx, sy, sz); return m; };
+  // haunches & body (sitting, front = +z)
+  blob(0.1, CM.amber, 0, 0.08, -0.03, 1.15, 0.8, 1.2);
+  blob(0.085, CM.amber, 0, 0.18, 0.02, 0.95, 1.35, 0.9);
+  // patches: black on the back/flank, brown on the other flank and rump
+  blob(0.06, CM.black, -0.055, 0.2, -0.02, 0.7, 1.3, 1.1);
+  blob(0.055, CM.brown, 0.06, 0.12, -0.05, 0.7, 0.9, 1.2);
+  blob(0.05, CM.black, 0.03, 0.07, -0.1, 1.0, 0.7, 0.8);
+  // front legs & paws
+  for (const s of [-1, 1]) {
+    part(new THREE.CylinderGeometry(0.02, 0.022, 0.16, 10), s < 0 ? CM.brown : CM.amber, s * 0.035, 0.08, 0.07);
+    blob(0.025, CM.amber, s * 0.035, 0.012, 0.085, 1, 0.6, 1.3);
+  }
+  // head
+  const HY = 0.33;
+  blob(0.07, CM.amber, 0, HY, 0.04, 1.1, 0.95, 1);
+  blob(0.04, CM.black, -0.035, HY + 0.03, 0.06, 1, 1, 0.8); // black patch over one eye
+  blob(0.035, CM.brown, 0.04, HY + 0.035, 0.03, 1, 0.9, 1);
+  blob(0.03, CM.amber, 0, HY - 0.025, 0.095, 1.3, 0.8, 0.8); // muzzle
+  part(new THREE.SphereGeometry(0.009, 8, 6), CM.nose, 0, HY - 0.012, 0.118);
+  for (const s of [-1, 1]) {
+    part(new THREE.SphereGeometry(0.013, 10, 8), CM.eye, s * 0.028, HY + 0.012, 0.1);
+    const p = part(new THREE.SphereGeometry(0.006, 8, 6), CM.pupil, s * 0.028, HY + 0.012, 0.112);
+    p.scale.x = 0.5;
+    const ear = part(new THREE.ConeGeometry(0.03, 0.06, 4), s < 0 ? CM.black : CM.brown, s * 0.045, HY + 0.075, 0.03);
+    ear.rotation.z = -s * 0.3;
+    const inner = part(new THREE.ConeGeometry(0.017, 0.04, 4), CM.ear, s * 0.044, HY + 0.07, 0.042);
+    inner.rotation.z = -s * 0.3;
+  }
+  // tail curling round the side
+  const curve = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(0, 0.05, -0.14), new THREE.Vector3(0.1, 0.03, -0.12),
+    new THREE.Vector3(0.13, 0.025, 0.0), new THREE.Vector3(0.08, 0.03, 0.1),
+  ]);
+  part(new THREE.TubeGeometry(curve, 20, 0.018, 8), CM.brown, 0, 0, 0);
+  blob(0.02, CM.black, 0.08, 0.03, 0.1, 1, 1, 1);
+  g.position.set(x, zOf(parent), -y);
+  g.rotation.y = Math.atan2(faceX - x, -(faceY - y));
+  parent.add(g);
+  S.mapItems[lvOf(parent)].push({ t: 'circle', cx: x, cy: y, r: 0.1 });
+  return g;
+}

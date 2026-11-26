@@ -1,6 +1,6 @@
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import {
-  THREE, W, FH, OUTLINE, topY, inPoly, pip, S, M, resetState, walkable, mesh, cyl, flat, slab, RECT, canvasTex, rnd, greeter,
+  THREE, W, FH, OUTLINE, topY, inPoly, pip, S, M, resetState, walkable, mesh, cyl, flat, slab, RECT, canvasTex, rnd, greeter, cat,
 } from './core.js';
 import { VERSIONS } from './versions.js';
 
@@ -123,6 +123,7 @@ function buildHouse(v, alt) {
   resetState(G0, G1, GR);
   v.build(alt);
   greeter(G0, -1.7, 5.3, -3.0, 4.15); // smiling by the front path, facing arriving visitors
+  cat(G0, -2.0, 5.62, -3.2, 4.45); // three-coloured cat sitting beside her
   for (const lv of [0, 1]) for (const r of S.rooms[lv]) if (r.p) {
     const s = labelSprite(r.no, r.en);
     s.position.set(r.p[0], (lv ? FH : 0) + 1.3, -r.p[1]);
