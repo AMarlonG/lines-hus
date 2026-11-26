@@ -370,16 +370,7 @@ function meowSound() {
     o.start(t); o.stop(t + 0.72);
   } catch (_) { /* no audio available: the bubble still shows */ }
 }
-function speak(text, lang, pitch) {
-  try {
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = lang; u.pitch = pitch; u.rate = 1.05;
-    const voice = speechSynthesis.getVoices().find((vc) => vc.lang.replace('_', '-').toLowerCase().startsWith(lang.slice(0, 2)));
-    if (voice) u.voice = voice;
-    speechSynthesis.cancel(); speechSynthesis.speak(u);
-  } catch (_) { /* no speech synthesis: the bubble still shows */ }
-}
-const cheer = () => { say('woman', 'Hurra!', 2.15, 0.55); speak('Hurra!', 'nb-NO', 1.3); };
+const cheer = () => say('woman', 'Hurra!', 2.15, 0.55); // speech bubble only, no sound
 function onTalkerClick(who) {
   if (who === 'cat') {
     say('cat', 'Meow!', 0.65, 0.32); meowSound();
