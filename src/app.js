@@ -118,12 +118,14 @@ function labelSprite(no, en) {
   return s;
 }
 let current = { v: null, alt: null };
+const talkers = { woman: null, cat: null };
 function buildHouse(v, alt) {
   [G0, G1, GR, labels[0], labels[1]].forEach(clearGroup);
   resetState(G0, G1, GR);
   v.build(alt);
-  greeter(G0, -1.7, 5.3, -3.0, 4.15); // smiling by the front path, facing arriving visitors
-  cat(G0, -2.0, 5.62, -3.2, 4.45); // three-coloured cat sitting beside her
+  talkers.woman = greeter(G0, -1.7, 5.3, -3.0, 4.15); // smiling by the front path, facing arriving visitors
+  talkers.cat = cat(G0, -2.0, 5.62, -3.2, 4.45); // three-coloured cat sitting beside her
+  talkers.woman.userData.talker = 'woman'; talkers.cat.userData.talker = 'cat';
   for (const lv of [0, 1]) for (const r of S.rooms[lv]) if (r.p) {
     const s = labelSprite(r.no, r.en);
     s.position.set(r.p[0], (lv ? FH : 0) + 1.3, -r.p[1]);
@@ -319,6 +321,97 @@ const endPtr = (e) => {
 };
 addEventListener('pointerup', endPtr);
 addEventListener('pointercancel', endPtr);
+
+// ---------------------------------------------------------------------------
+// Click the cat → "Meow!", then the woman cheers "Hurra!" (click her alone for just the cheer)
+// ---------------------------------------------------------------------------
+function bubbleSprite(text) {
+  const c = document.createElement('canvas'); c.width = 512; c.height = 256;
+  const g = c.getContext('2d');
+  g.font = '700 96px system-ui, -apple-system, Segoe UI, sans-serif';
+  const w = g.measureText(text).width + 90;
+  g.fillStyle = '#fff'; g.strokeStyle = '#1f2328'; g.lineWidth = 8;
+  g.beginPath(); g.roundRect((512 - w) / 2, 14, w, 170, 60);
+  g.moveTo(230, 182); g.lineTo(256, 240); g.lineTo(290, 182);
+  g.fill(); g.stroke();
+  g.fillStyle = '#fff'; g.fillRect(234, 172, 52, 16); // hide the stroke where the tail joins
+  g.fillStyle = '#1f2328'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(text, 256, 102);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false, transparent: true }));
+  sp.renderOrder = 20;
+  return sp;
+}
+function say(who, text, y, scale, ms = 1800) {
+  const g = talkers[who];
+  if (!g) return;
+  if (g.userData.bubble) { g.remove(g.userData.bubble); g.userData.bubble.material.map.dispose(); g.userData.bubble.material.dispose(); }
+  const b = bubbleSprite(text);
+  b.position.set(0, y, 0); b.scale.set(scale * 2, scale, 1);
+  g.add(b); g.userData.bubble = b;
+  clearTimeout(g.userData.bubbleT);
+  g.userData.bubbleT = setTimeout(() => {
+    if (g.userData.bubble !== b) return;
+    g.remove(b); b.material.map.dispose(); b.material.dispose(); g.userData.bubble = null;
+  }, ms);
+}
+let audio = null;
+function meowSound() {
+  try {
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    if (audio.state === 'suspended') audio.resume();
+    const t = audio.currentTime, o = audio.createOscillator(), f = audio.createBiquadFilter(), v = audio.createGain();
+    o.type = 'sawtooth';
+    o.frequency.setValueAtTime(480, t); o.frequency.linearRampToValueAtTime(820, t + 0.18); o.frequency.exponentialRampToValueAtTime(380, t + 0.65);
+    f.type = 'bandpass'; f.Q.value = 3;
+    f.frequency.setValueAtTime(900, t); f.frequency.linearRampToValueAtTime(2200, t + 0.2); f.frequency.linearRampToValueAtTime(700, t + 0.65);
+    v.gain.setValueAtTime(0.0001, t); v.gain.exponentialRampToValueAtTime(0.35, t + 0.06); v.gain.exponentialRampToValueAtTime(0.0001, t + 0.7);
+    o.connect(f).connect(v).connect(audio.destination);
+    o.start(t); o.stop(t + 0.72);
+  } catch (_) { /* no audio available: the bubble still shows */ }
+}
+function speak(text, lang, pitch) {
+  try {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang; u.pitch = pitch; u.rate = 1.05;
+    const voice = speechSynthesis.getVoices().find((vc) => vc.lang.replace('_', '-').toLowerCase().startsWith(lang.slice(0, 2)));
+    if (voice) u.voice = voice;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  } catch (_) { /* no speech synthesis: the bubble still shows */ }
+}
+const cheer = () => { say('woman', 'Hurra!', 2.15, 0.55); speak('Hurra!', 'nb-NO', 1.3); };
+function onTalkerClick(who) {
+  if (who === 'cat') {
+    say('cat', 'Meow!', 0.65, 0.32); meowSound();
+    setTimeout(cheer, 650);
+  } else cheer();
+}
+const picker = new THREE.Raycaster();
+picker.camera = camera;
+const shownInScene = (o) => { for (; o; o = o.parent) if (!o.visible) return false; return true; };
+function pick(ndcX, ndcY) {
+  picker.setFromCamera(new THREE.Vector2(ndcX, ndcY), camera);
+  for (const h of picker.intersectObjects(scene.children, true)) {
+    if (h.object.isSprite || !shownInScene(h.object)) continue;
+    for (let o = h.object; o; o = o.parent) if (o.userData.talker) return o.userData.talker;
+    return null; // first solid thing hit is not one of them (e.g. a wall in the way)
+  }
+  return null;
+}
+let press = null;
+canvas.addEventListener('pointerdown', (e) => {
+  press = { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now(), locked: document.pointerLockElement === canvas };
+});
+canvas.addEventListener('pointerup', (e) => {
+  const p = press; press = null;
+  if (!p || p.id !== e.pointerId || performance.now() - p.t > 500) return;
+  if (!p.locked && Math.hypot(e.clientX - p.x, e.clientY - p.y) > 6) return; // a drag, not a click
+  if (mode === 'walk' && e.pointerType === 'touch' && p.x < innerWidth * 0.45) return; // joystick side
+  const r = canvas.getBoundingClientRect();
+  const who = p.locked ? pick(0, 0) // pointer-locked walk mode: pick what the crosshair is on
+    : pick(((p.x - r.left) / r.width) * 2 - 1, -((p.y - r.top) / r.height) * 2 + 1);
+  if (who) onTalkerClick(who);
+});
 
 // ---------------------------------------------------------------------------
 // Collision + walking (levels 0, 1 and 'S' = on a stair)
