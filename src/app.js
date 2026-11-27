@@ -227,11 +227,11 @@ function openVersion(v, alt) {
   if (!same) { buildHouse(v, alt); resetWalker(); }
   onStart = false;
   ui.start.style.display = 'none'; ui.viewer.style.display = '';
-  ui.title.innerHTML = `${v.name} <span>· ${v.sub}</span>`;
+  ui.title.textContent = v.name; ui.title.title = v.sub;
   ui.altRow.style.display = v.alts ? '' : 'none';
   if (v.alts) {
-    ui.altRow.innerHTML = `<span class="lbl">${v.altLabel || '2. etasje:'}</span>` + v.alts.map((a) =>
-      `<button data-alt="${a.id}" class="${a.id === alt ? 'on' : ''}">${a.label}</button>`).join('');
+    ui.altRow.innerHTML = v.alts.map((a) =>
+      `<button data-alt="${a.id}" title="${a.label}" class="${a.id === alt ? 'on' : ''}">${a.short}</button>`).join('');
     ui.altRow.querySelectorAll('[data-alt]').forEach((b) => b.addEventListener('click', () => { location.hash = `${v.id}-${b.dataset.alt}`; }));
   }
   applyVisibility();

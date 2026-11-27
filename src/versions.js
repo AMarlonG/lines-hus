@@ -637,7 +637,7 @@ export const VERSIONS = [
     id: 'v3', name: 'Versjon 3', sub: 'U-trapp',
     desc: ['Alt. 1 – 1. etg: kjøkken med øy, spiseplass, stue med peis · 2. etg: 2 soverom, treningsrom, WIC, bad, stue',
       'Alt. 2 og 3 – 1. etg: stue, soverom, stort bad · 2. etg: kjøkken, spiseplass, stue med peis'],
-    altLabel: 'Alternativ:', altBadge: 'alternativer',
+    altBadge: 'alternativer',
     alts: [
       { id: '1', label: 'Alt. 1 · kjøkken nede, soverom oppe', short: 'Alt. 1' },
       { id: '2', label: 'Alt. 2 · stue + soverom nede, kjøkken + soverom oppe', short: 'Alt. 2' },
