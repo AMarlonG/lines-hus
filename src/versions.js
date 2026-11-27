@@ -2,7 +2,7 @@ import {
   THREE, W, DR, DL, FH, CH2, topY, OUTLINE, RECT, S, M, box, cyl, flat, slab, slopedPoly,
   ew, iw, straightStair, uStair, roundTable, rectTable, sofa, lSofa, armchair, coffeeTable, squareTable,
   rug, bed, nightstand, wardrobe, shelves, wc, vanity, glassPanel, plant, kitchenRun, island, fireplace,
-  roundFireplace, daybed, roof, upperSlab, carportPost, balcony, room, fireLight,
+  roundFireplace, daybed, roof, upperSlab, carportPost, balcony, glassRail, room, fireLight,
 } from './core.js';
 
 const ROOF_TOP = FH + CH2 + 0.3;
@@ -153,7 +153,7 @@ function buildV2(alt) {
   iw(G0, 4.75, 5.6, 4.75, topY(4.75));
   iw(G0, 7.1, 5.6, 7.1, topY(7.1), [{ y0: 6.3, y1: 7.1, kind: 'door', open: 'L' }]);
   carportPost();
-  const hole = straightStair({ ...ST, top: 'W', openTop: alt === 1 ? 0.45 : 0, fronts: [[2.3, 2.9], [2.92, 3.52], [3.54, 4.14], [4.16, 4.6]] });
+  const hole = straightStair({ ...ST, top: 'W', openTop: alt === 2 ? 0 : 0.45, fronts: [[2.3, 2.9], [2.92, 3.52], [3.54, 4.14], [4.16, 4.6]] });
   // entré: two round poufs + bench
   cyl(G0, 0.85, 4.95, 0.25, 0, 0.42, M.fabric2); cyl(G0, 1.5, 5.25, 0.25, 0, 0.42, M.fabric);
   S.obstacles.push({ x0: 0.6, x1: 1.75, y0: 4.7, y1: 5.5, lv: 0 });
@@ -181,9 +181,9 @@ function buildV2(alt) {
   wardrobe(G0, 4.82, 7.02, 5.66, 6.2);
   shelves(G0, 2.25, 4.68, 5.66, 6.05);
 
-  // ---- upper (2_nytt_1 / 2_nytt_2)
+  // ---- upper (2_nytt_1 / 2_nytt_2 / alt 3 = original kitchen variant)
   upperSlab([hole]);
-  const sky = alt === 1 ? [[2.5, 3.6, 1.0, 2.4], [3.9, 5.0, 1.0, 2.4]] : [[3.0, 4.0, 0.9, 2.2], [4.2, 5.2, 0.9, 2.2]];
+  const sky = alt === 1 ? [[2.5, 3.6, 1.0, 2.4], [3.9, 5.0, 1.0, 2.4]] : alt === 2 ? [[3.0, 4.0, 0.9, 2.2], [4.2, 5.2, 0.9, 2.2]] : [];
   ew(G1, 0, 0, W, 0);
   ew(G1, W, 0, W, DR, [{ y0: 0.3, y1: 5.3, kind: 'win', sill: 0.05, head: 2.4 }, { y0: 5.8, y1: 9.75, kind: 'win', sill: 0.05, head: 2.4 }]);
   if (alt === 1) {
@@ -209,7 +209,7 @@ function buildV2(alt) {
     daybed(G1, 7.6, 9.8, 6.3, 8.0);
     balcony(7.25, W, 1.4);
     kitchenUpper(2.1, 5.45, 6.0);
-  } else {
+  } else if (alt === 2) {
     flat(G1, slopedPoly(3.9, 7.15, 5.6), FH + 0.006, M.tile);
     ew(G1, W, DR, 0, DL, [
       { x0: 9.3, x1: 10.85, kind: 'win', sill: 0.4, head: 2.3 },
@@ -239,6 +239,51 @@ function buildV2(alt) {
     armchair(G1, 9.6, 4.8, -0.5);
     balcony(8.0, 9.9, 1.2);
     kitchenUpper(2.1, 5.9, 6.45);
+  } else {
+    // alt 3: bedroom + bath/laundry in the SW, kitchen + island + dining along the sloping wall
+    flat(G1, RECT(2.9, 5.85, 0, 3.45), FH + 0.006, M.tile);
+    ew(G1, W, DR, 0, DL, [
+      { x0: 9.3, x1: 10.85, kind: 'win', sill: 0.3, head: 2.3 },
+      { x0: 6.6, x1: 8.0, kind: 'win', sill: 0.9, head: 2.3 },
+      { x0: 3.2, x1: 4.6, kind: 'win', sill: 1.4, head: 2.3 },
+      { x0: 0.8, x1: 1.8, kind: 'win', sill: 0.8, head: 2.2 }]);
+    ew(G1, 0, DL, 0, 0, [{ y0: 4.0, y1: 5.0, kind: 'win', sill: 0.8, head: 2.2 }, { y0: 0.7, y1: 2.9, kind: 'win', sill: 0.6, head: 2.3 }]);
+    iw(G1, 0, 3.45, 5.85, 3.45, [{ x0: 2.0, x1: 2.75, kind: 'door', open: 'R' }, { x0: 4.9, x1: 5.7, kind: 'door', open: 'L' }]);
+    iw(G1, 2.9, 0, 2.9, 3.45);
+    iw(G1, 5.85, 0, 5.85, 3.45);
+    iw(G1, 2.9, 1.5, 3.7, 1.5);   // bad / vaskerom, open in the middle
+    iw(G1, 5.0, 1.5, 5.85, 1.5);
+    iw(G1, ST.x0, 5.6, 4.9, 5.6);
+    iw(G1, ST.x0, 5.6, ST.x0, topY(ST.x0), [{ y0: 5.65, y1: 6.35, kind: 'door', open: 'R' }]);
+    iw(G1, 4.9, 5.6, 4.9, topY(4.9));
+    // soverom
+    bed(G1, 0.2, 1.8, 1.2, 3.35, 'N');
+    // bad + vaskerom
+    vanity(G1, 3.0, 3.5, 2.0, 3.35);
+    wc(G1, 5.5, 2.2, Math.PI / 2);
+    glassPanel(G1, 4.2, 4.22, 1.55, 2.4);
+    box(G1, 3.0, 3.6, 0.05, 0.65, FH, FH + 0.85, M.white, { obstacle: 1, map: 1 });
+    box(G1, 3.65, 4.25, 0.05, 0.65, FH, FH + 0.85, M.white, { obstacle: 1, map: 1 });
+    box(G1, 4.3, 5.8, 0.05, 0.65, FH, FH + 0.9, M.wood, { obstacle: 1, map: 1 });
+    // treningshjørne
+    box(G1, 1.3, 1.9, 3.7, 4.4, FH + 0.005, FH + 0.015, M.rubber, { shadow: false });
+    box(G1, 0.3, 1.05, 3.7, 5.3, FH, FH + 0.25, M.frame, { obstacle: 1, map: 1 });
+    box(G1, 0.35, 1.0, 3.75, 5.25, FH + 0.25, FH + 0.28, M.rubber);
+    // bod + kjøkken, island, spiseplass
+    shelves(G1, 2.25, 4.8, 5.66, 6.05);
+    kitchenRun(G1, 4.95, 5.6, 5.65, 7.5, [4.95, 5.3, 5.65, 7.5]);
+    island(G1, 6.6, 7.5, 6.2, 7.6);
+    roundTable(G1, 9.3, 7.9, 0.65);
+    // stue: peis + built-in seat along the south wall
+    rug(G1, 7.0, 10.6, 1.1, 4.4);
+    fireplace(G1, 7.6, 8.8, 0, 0.62, ROOF_TOP + 0.9);
+    box(G1, 8.85, 10.85, 0.12, 0.72, FH, FH + 0.42, M.wood, { obstacle: 1, map: 1 });
+    box(G1, 8.88, 10.82, 0.15, 0.7, FH + 0.42, FH + 0.5, M.linen);
+    box(G1, 8.88, 10.82, 0.12, 0.28, FH + 0.5, FH + 0.95, M.fabric2);
+    armchair(G1, 7.6, 2.4, Math.PI - 0.3);
+    armchair(G1, 8.9, 3.7, Math.PI);
+    coffeeTable(G1, 9.9, 2.1, 0.42);
+    plant(G1, 10.55, 5.0);
   }
   roof(sky);
   // ---- rooms
@@ -255,16 +300,28 @@ function buildV2(alt) {
     room(1, 'Soverom', 'Bedroom', [0, 2.0, 3.45, 10], [1.0, 5.75]);
     room(1, 'Bad', 'Bathroom', [2.0, 6.7, 5.6, 10], [4.4, 6.9]);
     room(1, 'Gang', 'Hall', [2.0, 5.85, 3.45, 5.6], [3.6, 4.1]);
-  } else {
+  } else if (alt === 2) {
     room(1, 'Treningsrom', 'Gym', [0, 2.15, 3.45, 10], [1.5, 5.6]);
     room(1, 'WIC', 'Walk-in closet', [2.15, 3.9, 5.6, 10], [3.0, 6.5]);
     room(1, 'Bad', 'Bathroom', [3.9, 7.15, 5.6, 10], [5.6, 6.9]);
     room(1, 'Soverom', 'Bedroom', [7.15, 11, 5.6, 10], [9.4, 8.6]);
     room(1, 'Trapperom', 'Landing', [2.15, 5.85, 3.45, 4.7], [3.6, 4.1]);
   }
-  room(1, 'Kjøkken', 'Kitchen', [2.0, 6.0, 0, 3.45], [3.8, 1.7]);
-  room(1, 'Spiseplass', 'Dining', [0, 2.0, 0, 3.45], [1.0, 3.0]);
-  room(1, 'Stue', 'Living room', [5.85, 11, 0, 10], [8.6, 4.0]);
+  if (alt === 3) {
+    room(1, 'Soverom', 'Bedroom', [0, 2.9, 0, 3.45], [2.3, 0.7]);
+    room(1, 'Bad', 'Bathroom', [2.9, 5.85, 1.5, 3.45], [4.6, 2.6]);
+    room(1, 'Vaskerom', 'Laundry', [2.9, 5.85, 0, 1.5], [4.4, 1.0]);
+    room(1, 'Treningshjørne', 'Gym corner', [0, 2.15, 3.45, 10], [1.5, 4.9]);
+    room(1, 'Bod', 'Storage', [2.15, 4.9, 5.6, 10], [3.5, 6.6]);
+    room(1, 'Kjøkken', 'Kitchen', [4.9, 8.2, 5.6, 10], [6.0, 8.0]);
+    room(1, 'Spiseplass', 'Dining', [8.2, 11, 5.6, 10], [10.3, 6.2]);
+    room(1, 'Gang', 'Hall', [2.15, 5.85, 3.45, 4.7], [3.6, 4.1]);
+    room(1, 'Stue', 'Living room', [5.85, 11, 0, 5.6], [9.6, 4.6]);
+  } else {
+    room(1, 'Kjøkken', 'Kitchen', [2.0, 6.0, 0, 3.45], [3.8, 1.7]);
+    room(1, 'Spiseplass', 'Dining', [0, 2.0, 0, 3.45], [1.0, 3.0]);
+    room(1, 'Stue', 'Living room', [5.85, 11, 0, 10], [8.6, 4.0]);
+  }
   S.teleports = { g: { x: 6.5, y: 4.2, yaw: -0.2, lv: 0 }, u: { x: 6.6, y: 4.3, yaw: -0.25, lv: 1 } };
 }
 function utebodShelves(G, x0, x1) { shelves(G, x0, x1, 2.6, 3.4); }
@@ -282,16 +339,94 @@ function kitchenUpper(kx0, kx1, peisX) {
 }
 
 // ===========================================================================
-// VERSJON 3 – "ny": U-shaped stair, kitchen/living downstairs, bedrooms upstairs
+// VERSJON 3 – "ny": U-shaped stair.
+// Alt 1: kitchen/living downstairs, bedrooms upstairs (1_ny + 2_ny).
+// Alt 2/3: stue + soverom downstairs, kitchen/dining/stue upstairs.
+//   Alt 2 upper: soverom + WIC/badstue + bad.  Alt 3 upper: soverom, WIC/badstue, bad, daybed.
 // ===========================================================================
-function buildV3() {
+function buildV3(alt) {
   const { G0, G1 } = S;
   const US = { x0: 5.45, x1: 7.05, y0: 0, y1: 3.8 };
-  // ---- ground (1_ny)
+  const open = alt !== 1;   // the kitchen-upstairs layouts
+  // ---- ground, shared shell (carport, utebod, entrance, U-stair)
   slab(G0, OUTLINE, -0.15, 0, M.concrete);
   flat(G0, [[0, 3.5], [4.85, 3.5], [4.85, 0], [W, 0], [W, DR], [0, DL]], 0.01, M.oak);
-  flat(G0, slopedPoly(3.35, 6.35, 5.2), 0.015, M.tile);
   ew(G0, 4.85, 0, W, 0);
+  ew(G0, 0, DL, 0, 3.5, [
+    { y0: 4.7, y1: 5.4, kind: 'win', sill: 0.3, head: 2.4 },
+    { y0: 3.6, y1: 4.55, kind: 'front', head: 2.2, open: 'R' }]);
+  ew(G0, 0, 3.5, 4.85, 3.5);
+  ew(G0, 4.85, 3.5, 4.85, 0, [{ y0: 1.2, y1: 2.05, kind: 'front', head: 2.1, open: 'L' }]);
+  iw(G0, 4.85, 3.5, 5.45, 3.5);
+  iw(G0, US.x0, 0, US.x0, US.y1);
+  iw(G0, US.x1, 0, US.x1, US.y1);
+  const yB = open ? 5.0 : 5.2;   // south wall of the bathroom
+  iw(G0, US.x1, US.y1, US.x1, yB, [{ y0: US.y1 + 0.05, y1: yB - 0.05, kind: 'slide', head: 2.3 }]);
+  carportPost();
+  const hole = uStair({ ...US, landing: 1.3 });
+  box(G0, 0.13, 0.5, 4.7, 5.4, 0, 0.45, M.wood, { obstacle: 0, map: 0 });
+  shelves(G0, 4.92, 5.38, 2.4, 3.4);
+  if (!open) ground1(US, yB); else ground2(yB);
+
+  // ---- upper
+  upperSlab([hole]);
+  ew(G1, 0, 0, W, 0);
+  ew(G1, W, 0, W, DR, [{ y0: 0.3, y1: 6.2, kind: 'win', sill: 0.05, head: 2.4 }, { y0: 6.6, y1: 9.75, kind: 'win', sill: 0.05, head: 2.4 }]);
+  if (alt === 1) upper1(US);
+  else upperOpen(US, alt);
+  roof(open ? [[2.9, 3.9, 1.1, 2.3], [4.1, 5.1, 1.1, 2.3]] : []);
+  // ---- rooms (first match wins, so smaller rooms go first)
+  room(0, 'Utebod', 'Outdoor storage', [4.85, 5.45, 0, 3.5], [5.15, 1.2]);
+  room(0, 'Carport', 'Carport', [0, 4.85, 0, 3.5], [2.4, 1.75]);
+  if (!open) {
+    room(0, 'Bad', 'Bathroom', [3.35, 6.35, 5.2, 10], [4.9, 6.1]);
+    room(0, 'Kjøkken', 'Kitchen', [6.35, 8.6, 5.2, 10], [7.8, 8.6]);
+    room(0, 'Spiseplass', 'Dining', [8.6, 11, 5.2, 10], [9.7, 8.8]);
+    room(0, 'Entré', 'Entrance hall', [0, 7.05, 3.5, 10], [1.3, 4.6]);
+    room(0, 'Stue', 'Living room', [7.05, 11, 0, 5.2], [10.0, 3.2]);
+  } else {
+    room(0, 'Bad', 'Bathroom', [2.95, 7.3, 5.0, 10], [5.0, 5.6]);
+    room(0, 'Soverom', 'Bedroom', [7.3, 11, 6.6, 10], [8.3, 7.0]);
+    room(0, 'Entré', 'Entrance hall', [0, 7.05, 3.5, 10], [1.3, 4.6]);
+    room(0, 'Stue', 'Living room', [7.05, 11, 0, 6.6], [10.0, 5.6]);
+  }
+  if (alt === 1) {
+    room(1, 'Soverom', 'Bedroom 1', [0, 3.95, 0, 3.9], [2.2, 3.0]);
+    room(1, 'Bod', 'Storage', [3.95, 5.45, 0, 3.9], [4.7, 1.3]);
+    room(1, 'Treningsrom', 'Gym', [0, 2.95, 3.9, 10], [1.6, 5.4]);
+    room(1, 'WIC', 'Walk-in closet', [2.95, 5.55, 4.9, 10], [4.2, 5.9]);
+    room(1, 'Bad', 'Bathroom', [5.55, 8.2, 4.9, 10], [6.9, 6.7]);
+    room(1, 'Soverom', 'Bedroom 2', [8.2, 11, 5.7, 10], [9.9, 8.6]);
+    room(1, 'Gang', 'Hall', [0, 7.05, 3.9, 4.9], [4.2, 4.4]);
+    room(1, 'Stue', 'Upper lounge', [7.05, 11, 0, 5.7], [9.4, 4.9]);
+  } else if (alt === 2) {
+    room(1, 'WIC / badstue', 'Walk-in closet / sauna', [2.25, 4.25, 4.8, 10], [3.0, 5.3]);
+    room(1, 'Bad', 'Bathroom', [4.25, 7.35, 4.8, 10], [4.8, 6.6]);
+    room(1, 'Soverom', 'Bedroom', [7.35, 11, 6.6, 10], [8.3, 8.0]);
+    room(1, 'Treningshjørne', 'Gym corner', [0, 2.25, 3.45, 10], [1.6, 3.9]);
+    room(1, 'Gang', 'Hall', [2.25, 7.35, 3.45, 4.8], [4.0, 4.1]);
+  } else {
+    room(1, 'WIC / badstue', 'Walk-in closet / sauna', [2.95, 5.1, 4.7, 10], [3.6, 5.2]);
+    room(1, 'Bad', 'Bathroom', [5.1, 7.5, 4.7, 10], [5.6, 6.4]);
+    room(1, 'Daybed', 'Daybed nook', [7.5, 11, 4.7, 10], [9.0, 6.2]);
+    room(1, 'Soverom', 'Bedroom', [0, 5.1, 3.45, 10], [2.6, 3.9]);
+    room(1, 'Gang', 'Hall', [5.1, 7.5, 3.45, 4.7], [7.3, 4.1]);
+  }
+  if (open) {
+    room(1, 'Kjøkken', 'Kitchen', [2.25, 5.45, 0, 3.45], [3.8, 1.7]);
+    room(1, 'Spiseplass', 'Dining', [0, 2.25, 0, 3.45], [1.0, 3.1]);
+    room(1, 'Stue', 'Living room', [5.45, 11, 0, 10], [9.6, 3.6]);
+  }
+  S.teleports = {
+    g: { x: 7.6, y: 4.6, yaw: -0.5, lv: 0 },
+    u: alt === 1 ? { x: 3.0, y: 4.4, yaw: 0, lv: 1 } : { x: 6.6, y: 4.2, yaw: -0.3, lv: 1 },
+  };
+}
+
+// Versjon 3, 1. etasje alt 1: kitchen with island, dining, stue med peis
+function ground1(US, yB) {
+  const { G0 } = S;
+  flat(G0, slopedPoly(3.35, 6.35, yB), 0.015, M.tile);
   ew(G0, W, 0, W, DR, [
     { y0: 0.3, y1: 3.5, kind: 'win', sill: 0.05, head: 2.5 },
     { y0: 3.6, y1: 6.0, kind: 'slide', head: 2.5 },
@@ -302,20 +437,9 @@ function buildV3() {
     { x0: 4.6, x1: 5.3, kind: 'win', sill: 1.4, head: 2.3 },
     { x0: 3.5, x1: 4.2, kind: 'win', sill: 1.4, head: 2.3 },
     { x0: 1.2, x1: 2.6, kind: 'win', sill: 0.9, head: 2.4 }]);
-  ew(G0, 0, DL, 0, 3.5, [
-    { y0: 4.7, y1: 5.4, kind: 'win', sill: 0.3, head: 2.4 },
-    { y0: 3.6, y1: 4.55, kind: 'front', head: 2.2, open: 'R' }]);
-  ew(G0, 0, 3.5, 4.85, 3.5);
-  ew(G0, 4.85, 3.5, 4.85, 0, [{ y0: 1.2, y1: 2.05, kind: 'front', head: 2.1, open: 'L' }]);
-  iw(G0, 4.85, 3.5, 5.45, 3.5);
-  iw(G0, US.x0, 0, US.x0, US.y1);
-  iw(G0, US.x1, 0, US.x1, US.y1);
-  iw(G0, US.x1, US.y1, US.x1, 5.2, [{ y0: 3.85, y1: 5.15, kind: 'slide', head: 2.3 }]);
-  iw(G0, 3.35, 5.2, 6.35, 5.2, [{ x0: 4.3, x1: 5.1, kind: 'door', open: 'L' }]);
-  iw(G0, 3.35, 5.2, 3.35, topY(3.35));
-  iw(G0, 6.35, 5.2, 6.35, topY(6.35));
-  carportPost();
-  const hole = uStair({ ...US, landing: 1.3 });
+  iw(G0, 3.35, yB, 6.35, yB, [{ x0: 4.3, x1: 5.1, kind: 'door', open: 'L' }]);
+  iw(G0, 3.35, yB, 3.35, topY(3.35));
+  iw(G0, 6.35, yB, 6.35, topY(6.35));
   // høyskap facing the entrance
   box(G0, 2.85, 3.3, 5.25, topY(2.85) - 0.15, 0, 2.3, M.white, { obstacle: 0, map: 0 });
   // bad
@@ -337,13 +461,50 @@ function buildV3() {
   box(G0, 9.48, 10.82, 0.15, 0.7, 0.42, 0.5, M.linen);
   box(G0, 9.48, 10.82, 0.12, 0.28, 0.5, 0.95, M.fabric2);
   box(G0, 7.15, 8.25, 0.12, 0.55, 0, 0.45, M.white, { obstacle: 0, map: 0 });
-  box(G0, 0.13, 0.5, 4.7, 5.4, 0, 0.45, M.wood, { obstacle: 0, map: 0 });
-  shelves(G0, 4.92, 5.38, 2.4, 3.4);
-  // ---- upper (2_ny)
-  upperSlab([hole]);
+}
+
+// Versjon 3, 1. etasje alt 2: long bathroom along the sloping wall, soverom in the NE corner, stue
+function ground2(yB) {
+  const { G0 } = S;
+  flat(G0, slopedPoly(2.95, 7.3, yB), 0.015, M.tile);
+  ew(G0, W, 0, W, DR, [
+    { y0: 0.3, y1: 3.5, kind: 'win', sill: 0.05, head: 2.5 },
+    { y0: 3.6, y1: 4.7, kind: 'slide', head: 2.5 },
+    { y0: 4.8, y1: 6.4, kind: 'win', sill: 0.05, head: 2.5 },
+    { y0: 6.8, y1: 9.75, kind: 'win', sill: 0.6, head: 2.5 }]);
+  ew(G0, W, DR, 0, DL, [
+    { x0: 8.6, x1: 10.4, kind: 'win', sill: 0.9, head: 2.4 },
+    { x0: 5.6, x1: 6.9, kind: 'win', sill: 1.4, head: 2.3 },
+    { x0: 3.3, x1: 4.6, kind: 'win', sill: 1.4, head: 2.3 },
+    { x0: 1.2, x1: 2.2, kind: 'win', sill: 0.9, head: 2.4 }]);
+  iw(G0, 2.95, yB, 7.3, yB, [{ x0: 3.4, x1: 4.2, kind: 'door', open: 'L' }]);
+  iw(G0, 2.95, yB, 2.95, topY(2.95));
+  iw(G0, 7.3, yB, 7.3, topY(7.3));
+  iw(G0, 7.3, 6.6, W, 6.6, [{ x0: 7.55, x1: 8.35, kind: 'door', open: 'L' }]);
+  // høyskap between entré and bad
+  box(G0, 2.45, 2.9, yB + 0.05, topY(2.45) - 0.15, 0, 2.3, M.white, { obstacle: 0, map: 0 });
+  // bad
+  wc(G0, 3.3, 6.2, -Math.PI / 2);
+  vanity(G0, 4.4, 5.4, 6.85, 7.3);
+  box(G0, 6.05, 7.25, yB + 0.05, 6.9, 0.016, 0.03, M.darkStone, { shadow: false });
+  glassPanel(G0, 6.0, 6.02, yB + 0.4, 6.4);
+  box(G0, 7.1, 7.25, 5.6, 6.4, 1.9, 2.0, M.steel);
+  // soverom
+  bed(G0, 8.7, 10.5, 6.8, 8.9, 'N');
+  nightstand(G0, 8.2, 8.4);
+  wardrobe(G0, 7.36, 7.95, 7.55, 8.45);
+  // stue
+  rug(G0, 7.6, 10.7, 0.8, 4.6);
+  squareTable(G0, 8.9, 3.5, 0.85, 0);
+  armchair(G0, 8.0, 1.9, -0.6);
+  armchair(G0, 9.9, 1.9, 0.6);
+  plant(G0, 10.6, 0.5);
+}
+
+// Versjon 3, 2. etasje alt 1 (2_ny): two bedrooms, gym, WIC, bath, upper lounge
+function upper1(US) {
+  const { G1 } = S;
   flat(G1, slopedPoly(5.55, 8.2, 4.9), FH + 0.006, M.tile);
-  ew(G1, 0, 0, W, 0);
-  ew(G1, W, 0, W, DR, [{ y0: 0.3, y1: 6.2, kind: 'win', sill: 0.05, head: 2.4 }, { y0: 6.6, y1: 9.75, kind: 'win', sill: 0.05, head: 2.4 }]);
   ew(G1, W, DR, 0, DL, [
     { x0: 9.3, x1: 10.8, kind: 'win', sill: 0.3, head: 2.3 },
     { x0: 6.4, x1: 7.7, kind: 'win', sill: 1.4, head: 2.3 },
@@ -366,11 +527,7 @@ function buildV3() {
   wardrobe(G1, 0.1, 0.7, 2.6, 3.9);
   shelves(G1, 4.02, 5.38, 0.1, 0.5);
   shelves(G1, 4.02, 5.38, 2.0, 2.4);
-  // gym
-  box(G1, 1.3, 2.0, 5.1, 5.9, FH + 0.005, FH + 0.015, M.rubber, { shadow: false });
-  box(G1, 0.3, 1.05, 4.1, 5.6, FH, FH + 0.25, M.frame, { obstacle: 1, map: 1 });
-  box(G1, 0.35, 1.0, 4.15, 5.55, FH + 0.25, FH + 0.28, M.rubber);
-  box(G1, 0.3, 1.05, 4.05, 4.15, FH + 0.25, FH + 1.3, M.frame);
+  gym(5.1);
   // WIC, bad, soverom 2
   wardrobe(G1, 3.02, 5.48, 4.96, 5.5);
   vanity(G1, 5.62, 6.2, 5.0, 6.2);
@@ -385,24 +542,79 @@ function buildV3() {
   coffeeTable(G1, 9.4, 2.4, 0.4);
   armchair(G1, 9.85, 3.95, Math.PI);
   plant(G1, 10.6, 5.2);
-  roof();
-  // ---- rooms
-  room(0, 'Utebod', 'Outdoor storage', [4.85, 5.45, 0, 3.5], [5.15, 1.2]);
-  room(0, 'Carport', 'Carport', [0, 4.85, 0, 3.5], [2.4, 1.75]);
-  room(0, 'Bad', 'Bathroom', [3.35, 6.35, 5.2, 10], [4.9, 6.1]);
-  room(0, 'Kjøkken', 'Kitchen', [6.35, 8.6, 5.2, 10], [7.8, 8.6]);
-  room(0, 'Spiseplass', 'Dining', [8.6, 11, 5.2, 10], [9.7, 8.8]);
-  room(0, 'Entré', 'Entrance hall', [0, 7.05, 3.5, 10], [1.3, 4.6]);
-  room(0, 'Stue', 'Living room', [7.05, 11, 0, 5.2], [10.0, 3.2]);
-  room(1, 'Soverom', 'Bedroom 1', [0, 3.95, 0, 3.9], [2.2, 3.0]);
-  room(1, 'Bod', 'Storage', [3.95, 5.45, 0, 3.9], [4.7, 1.3]);
-  room(1, 'Treningsrom', 'Gym', [0, 2.95, 3.9, 10], [1.6, 5.4]);
-  room(1, 'WIC', 'Walk-in closet', [2.95, 5.55, 4.9, 10], [4.2, 5.9]);
-  room(1, 'Bad', 'Bathroom', [5.55, 8.2, 4.9, 10], [6.9, 6.7]);
-  room(1, 'Soverom', 'Bedroom 2', [8.2, 11, 5.7, 10], [9.9, 8.6]);
-  room(1, 'Gang', 'Hall', [0, 7.05, 3.9, 4.9], [4.2, 4.4]);
-  room(1, 'Stue', 'Upper lounge', [7.05, 11, 0, 5.7], [9.4, 4.9]);
-  S.teleports = { g: { x: 7.6, y: 4.6, yaw: -0.5, lv: 0 }, u: { x: 3.0, y: 4.4, yaw: 0, lv: 1 } };
+}
+
+// treningshjørne: bench + mat, used by several upper floors
+function gym(matY) {
+  const { G1 } = S;
+  box(G1, 1.3, 2.0, matY, matY + 0.8, FH + 0.005, FH + 0.015, M.rubber, { shadow: false });
+  box(G1, 0.3, 1.05, 4.1, 5.6, FH, FH + 0.25, M.frame, { obstacle: 1, map: 1 });
+  box(G1, 0.35, 1.0, 4.15, 5.55, FH + 0.25, FH + 0.28, M.rubber);
+  box(G1, 0.3, 1.05, 4.05, 4.15, FH + 0.25, FH + 1.3, M.frame);
+}
+
+// Versjon 3, 2. etasje alt 2 + 3: kitchen (two runs, roof windows), dining, peis, stue.
+// Alt 2: treningshjørne, WIC/badstue, bad, soverom.  Alt 3: soverom, WIC/badstue, bad, daybed nook.
+function upperOpen(US, alt) {
+  const { G1 } = S;
+  ew(G1, W, DR, 0, DL, [
+    { x0: 9.0, x1: 10.7, kind: 'win', sill: 0.5, head: 2.3 },
+    { x0: 5.3, x1: 6.8, kind: 'win', sill: 1.4, head: 2.3 },
+    { x0: 2.7, x1: 4.0, kind: 'win', sill: 1.4, head: 2.3 },
+    { x0: 0.5, x1: 2.0, kind: 'win', sill: 0.8, head: 2.2 }]);
+  ew(G1, 0, DL, 0, 0, [{ y0: 4.2, y1: 5.2, kind: 'win', sill: 0.8, head: 2.2 }, { y0: 0.9, y1: 3.0, kind: 'win', sill: 0.6, head: 2.3 }]);
+  // kitchen block + stair
+  iw(G1, 0, 3.45, US.x0, 3.45);
+  iw(G1, US.x0, 0, US.x0, US.y1);
+  glassRail(G1, US.x1, 0, US.x1, US.y1, FH, [1]);
+  kitchenRun(G1, 2.3, 5.35, 2.75, 3.4, [2.3, 5.35, 3.05, 3.4]);
+  kitchenRun(G1, 2.3, 5.35, 0.05, 0.7, [2.3, 5.35, 0.05, 0.4]);
+  rectTable(G1, 0.6, 1.45, 0.6, 2.8);
+  roundFireplace(G1, 7.6, 3.4, ROOF_TOP + 0.9);
+  // stue: corner sofa facing the sea
+  rug(G1, 7.8, 10.6, 0.2, 3.4);
+  sofa(G1, 7.9, 10.0, 0.1, 0.95, 'S');
+  sofa(G1, 7.9, 8.75, 0.95, 2.6, 'W');
+  coffeeTable(G1, 9.4, 2.0, 0.42);
+  if (alt === 2) {
+    flat(G1, slopedPoly(4.25, 7.35, 4.8), FH + 0.006, M.tile);
+    iw(G1, 2.25, 4.8, 7.35, 4.8, [{ x0: 2.6, x1: 3.35, kind: 'door', open: 'R' }, { x0: 5.4, x1: 6.2, kind: 'door', open: 'L' }]);
+    iw(G1, 2.25, 4.8, 2.25, topY(2.25));
+    iw(G1, 4.25, 4.8, 4.25, topY(4.25));
+    iw(G1, 7.35, 4.8, 7.35, topY(7.35));
+    iw(G1, 7.35, 6.6, W, 6.6, [{ x0: 7.95, x1: 8.75, kind: 'door', open: 'L' }]);
+    gym(4.6);
+    // WIC / badstue
+    wardrobe(G1, 3.6, 4.18, 4.86, 6.9);
+    box(G1, 2.32, 3.4, 6.0, 6.45, FH, FH + 0.45, M.wood, { obstacle: 1, map: 1 });
+    // bad
+    vanity(G1, 4.32, 4.8, 5.0, 6.2);
+    wc(G1, 7.0, 5.5, Math.PI / 2);
+    glassPanel(G1, 6.2, 6.22, 6.6, 7.6);
+    // soverom
+    wardrobe(G1, 7.42, 7.9, 6.65, 7.6);
+    bed(G1, 9.0, 10.6, 6.7, 8.8, 'S');
+    plant(G1, 10.5, 5.0);
+  } else {
+    flat(G1, slopedPoly(5.1, 7.5, 4.7), FH + 0.006, M.tile);
+    iw(G1, 2.95, 4.7, 7.5, 4.7, [{ x0: 3.2, x1: 3.95, kind: 'door', open: 'R' }, { x0: 6.3, x1: 7.1, kind: 'door', open: 'L' }]);
+    iw(G1, 2.95, 4.7, 2.95, topY(2.95));
+    iw(G1, 5.1, 4.7, 5.1, topY(5.1));
+    iw(G1, 7.5, 4.7, 7.5, topY(7.5));
+    iw(G1, 5.1, 3.45, 5.1, 4.7, [{ y0: 3.5, y1: 4.65, kind: 'slide', head: 2.1 }]);
+    // soverom
+    bed(G1, 0.25, 1.85, 3.55, 5.6, 'N');
+    nightstand(G1, 1.95, 5.2);
+    // WIC / badstue
+    wardrobe(G1, 4.45, 5.02, 4.76, 7.2);
+    box(G1, 3.02, 4.0, 6.3, 6.75, FH, FH + 0.45, M.wood, { obstacle: 1, map: 1 });
+    // bad
+    vanity(G1, 5.18, 5.66, 5.0, 6.2);
+    wc(G1, 7.15, 6.6, Math.PI / 2);
+    glassPanel(G1, 5.9, 5.92, 6.7, 7.7);
+    // daybed nook, open to the stue
+    daybed(G1, 8.2, 9.6, 7.3, 8.8);
+  }
 }
 
 export const VERSIONS = [
@@ -417,12 +629,20 @@ export const VERSIONS = [
     alts: [
       { id: '1', label: 'Alt. 1 · daybed + lite soverom', short: 'Alt. 1' },
       { id: '2', label: 'Alt. 2 · treningsrom + soverom', short: 'Alt. 2' },
+      { id: '3', label: 'Alt. 3 · original kjøkkenvariant', short: 'Alt. 3' },
     ],
-    build: (alt) => buildV2(alt === '2' ? 2 : 1),
+    build: (alt) => buildV2(Number(alt) || 1),
   },
   {
     id: 'v3', name: 'Versjon 3', sub: 'U-trapp',
-    desc: ['1. etg: entré, bad, kjøkken med øy, spiseplass, stue med peis', '2. etg: 2 soverom, treningsrom, WIC, bad, stue'],
-    build: () => buildV3(),
+    desc: ['Alt. 1 – 1. etg: kjøkken med øy, spiseplass, stue med peis · 2. etg: 2 soverom, treningsrom, WIC, bad, stue',
+      'Alt. 2 og 3 – 1. etg: stue, soverom, stort bad · 2. etg: kjøkken, spiseplass, stue med peis'],
+    altLabel: 'Alternativ:', altBadge: 'alternativer',
+    alts: [
+      { id: '1', label: 'Alt. 1 · kjøkken nede, soverom oppe', short: 'Alt. 1' },
+      { id: '2', label: 'Alt. 2 · stue + soverom nede, kjøkken + soverom oppe', short: 'Alt. 2' },
+      { id: '3', label: 'Alt. 3 · stue + soverom nede, kjøkken, stue + daybed oppe', short: 'Alt. 3' },
+    ],
+    build: (alt) => buildV3(Number(alt) || 1),
   },
 ];

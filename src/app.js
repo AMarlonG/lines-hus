@@ -205,7 +205,7 @@ document.querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click'
 }));
 
 // ---------------------------------------------------------------------------
-// Start page + routing (#v1, #v2-1, #v2-2, #v3)
+// Start page + routing (#v1, #v2-1..3, #v3-1..3)
 // ---------------------------------------------------------------------------
 let onStart = true;
 function routeFromHash() {
@@ -230,7 +230,7 @@ function openVersion(v, alt) {
   ui.title.innerHTML = `${v.name} <span>· ${v.sub}</span>`;
   ui.altRow.style.display = v.alts ? '' : 'none';
   if (v.alts) {
-    ui.altRow.innerHTML = '<span class="lbl">2. etasje:</span>' + v.alts.map((a) =>
+    ui.altRow.innerHTML = `<span class="lbl">${v.altLabel || '2. etasje:'}</span>` + v.alts.map((a) =>
       `<button data-alt="${a.id}" class="${a.id === alt ? 'on' : ''}">${a.label}</button>`).join('');
     ui.altRow.querySelectorAll('[data-alt]').forEach((b) => b.addEventListener('click', () => { location.hash = `${v.id}-${b.dataset.alt}`; }));
   }
@@ -263,7 +263,7 @@ function buildCards() {
     const img = snapshot();
     const href = v.alts ? `#${v.id}-${v.alts[0].id}` : `#${v.id}`;
     html.push(`<a class="card" href="${href}">
-      <div class="thumb"><img src="${img}" alt="${v.name}">${v.alts ? `<span class="badge">${v.alts.length} alternativer for 2. etasje</span>` : ''}</div>
+      <div class="thumb"><img src="${img}" alt="${v.name}">${v.alts ? `<span class="badge">${v.alts.length} ${v.altBadge || 'alternativer for 2. etasje'}</span>` : ''}</div>
       <div class="body"><h2>${v.name}</h2><div class="sub">${v.sub}</div>
       <ul>${v.desc.map((d) => `<li>${d}</li>`).join('')}</ul>
       <span class="open">Åpne 3D-modell →</span></div></a>`);
